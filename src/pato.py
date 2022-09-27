@@ -13,8 +13,8 @@ class Template(object):
 		super(Template, self).__init__()
 		self.args = args
 		self.sub = rospy.Subscriber("/duckiebot/joy",Joy,self.callback)
-	        self.publisher= rospy.Publisher("/duckiebot/wheels_driver_node/car_cmd", Twist2DStamped, queue_size = "x")
-
+		self.publisher= rospy.Publisher("/duckiebot/filtro", Twist2DStamped, queue_size = "x")
+       
 	
 	#def publicar(self):
 
