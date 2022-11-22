@@ -34,7 +34,7 @@ class Template(object):
 def mapeo(valor, inf, sup, out_inf, out_sup):
 	return np.interp(valor,[inf,sup],[out_inf,out_sup])
 def main():
-	rospy.init_node('test') #creacion y registro del nodo!
+	rospy.init_node('pato') #creacion y registro del nodo!
 
 	obj = Template('args') # Crea un objeto del tipo Template, cuya definicion se encuentra arriba
 

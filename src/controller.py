@@ -18,19 +18,20 @@ class Template(object):
 		self.sub = rospy.Subscriber("/duckiebot/posicionPato",Point,self.procesar_dis)
 		self.sub1= rospy.Subscriber("/duckiebot/filtro", Twist2DStamped,self.procesar_twist)
 		self.publisher = rospy.Publisher("/duckiebot/wheels_driver_node/car_cmd", Twist2DStamped, queue_size = 1)
-		self.dz = 300
+		self.dz=300
 	#def publicar(self):
 
 	#def callback(self,msg):
 
 	def procesar_dis(self, dis):
 		self.dz=dis.z
+		return self.dz
 	def procesar_twist(self, twist):
-		if self.dz<=15:
+		print self.dz
+		if self.dz<=10:
 			twist.v=0
 			twist.omega=0
 		self.publisher.publish(twist)
-		
 		   
 
 

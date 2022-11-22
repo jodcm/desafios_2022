@@ -15,26 +15,75 @@ class Template(object):
 		
 		super(Template, self).__init__()
 		self.args = args
-		self.sub = rospy.Subscriber("/duckiebot/dist_bot",Point,self.procesar_dis)
+		self.sub = rospy.Subscriber("/duckiebot/posicion_bot",Point,self.procesar_dis)
 		self.sub1= rospy.Subscriber("/duckiebot/filtro", Twist2DStamped,self.procesar_twist)
 		self.publisher = rospy.Publisher("/duckiebot/wheels_driver_node/car_cmd", Twist2DStamped, queue_size = 1)
-		self.dz=300
+		self.dx=300
+		self.dz =300
+		self.sep=0
+		self.dis_area=[]
+
 	#def publicar(self):
 
 	#def callback(self,msg):
-
+	centro_img = Point() 
+	centro_img.x=160
+	centro_img.y=120
+	centro_img.z=0
+	
+	Z_segura=9.75 #para considerar que 87 es el centro de la "pantalla"
+	#funcion que retorna una lista compuesta por la distancia en el eje "x" y en el eje "z"
 	def procesar_dis(self, dis):
-		self.dz=dis.z
-		return self.dz
+		self.dx=dis.x #distancia en eje x de la camara
+		self.dz = dis.z #distancia en eje z de la camara
+		self.dis_area=[self.dx,self.dz] 
+		return self.dis_area 
+		
+
 	def procesar_twist(self, twist):
-		print self.dz
-		if self.dz<=10:
-			twist.v= 0
-			twist.omega=0
+	
+	# se definen las variables dx, distancia en eje x, y da, area del blob	
+		dx=self.dis_area[0]
+		da=self.dis_area[1]		
+		if self.dx == 0:
+			self.sep = 0
+
+		else:
+			self.sep = 87-self.dx
+		print(da)
+		
+	#Se definen las velocidades lineales y angulares dependiendo de la distancia del duckiebot al blob, usando el area		
+		if abs(da)<1600:
+			c=0.0004
+		elif abs(da)<2500 and abs(da)>=1600:
+			c=0.0001
+			
+		elif abs(da)< 3000 and abs(da)>=2500:
+			c=0.0006
+		
+		if  da==0 or da > 3000:
+			c=0
+			
+		else: 
+			twist.v = -c*da 
+
+		if da==0:
+			self.sep=3
+			k=4
+		elif abs(self.sep)>=50:
+			k=0.09
+		elif abs(self.sep)<50 and abs(self.sep)>=30:
+			k=0.09
+			
+		elif abs(self.sep)<30 and abs(self.sep)>=10:
+			k=0.17	
+			
+		else: 
+			k=0.49	
+			
+		twist.omega = k* self.sep
 		self.publisher.publish(twist)
-
 #pato 		   
-
 		
 def main():
 	rospy.init_node('FUN_FOLLOW') #creacion y registro del nodo!
